@@ -15,92 +15,73 @@ TEMPLATE = """
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 2rem auto;
-      max-width: 800px;
-      background: #f9fafb;
-      color: #222;
-      padding: 1rem;
+      margin: 2rem;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      color: #333;
     }
     h1 {
+      color: #4a4a4a;
       text-align: center;
-      color: #444;
       margin-bottom: 2rem;
+      text-shadow: 1px 1px 2px #fff;
     }
     form {
+      background: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      max-width: 400px;
+      margin: 0 auto 2rem auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       display: flex;
       justify-content: center;
       gap: 1rem;
-      margin-bottom: 2rem;
       flex-wrap: wrap;
+      align-items: center;
     }
     input[type=number], select {
       padding: 0.5rem;
-      font-size: 1rem;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      border-radius: 4px;
-      min-width: 120px;
+      font-size: 1rem;
+      min-width: 90px;
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+    input[type=number]:focus, select:focus {
+      border-color: #f48fb1;
+      outline: none;
     }
     button {
-      padding: 0.5rem 1.2rem;
-      background-color: #4a90e2;
-      color: white;
+      background-color: #f48fb1;
       border: none;
-      border-radius: 4px;
-      cursor: pointer;
+      color: white;
       font-weight: bold;
-      transition: background-color 0.3s ease;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      min-width: 90px;
     }
     button:hover {
-      background-color: #357ABD;
+      background-color: #d81b60;
     }
     .user {
       background: white;
-      border-radius: 8px;
-      padding: 1rem;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
       margin-bottom: 1rem;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .user img {
-      border-radius: 50%;
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border: 2px solid #4a90e2;
-    }
-    .user-info {
+      box-shadow: 0 4px 12px rgba(244, 143, 177, 0.3);
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #444;
+      font-weight: 500;
       line-height: 1.5;
-      font-size: 1rem;
+      transition: transform 0.2s ease;
     }
-    .user-info strong {
-      font-size: 1.1rem;
-      color: #222;
-    }
-    p.no-users {
-      text-align: center;
-      color: #888;
-      font-style: italic;
-      margin-top: 2rem;
-    }
-    @media (max-width: 600px) {
-      form {
-        flex-direction: column;
-        align-items: center;
-      }
-      input[type=number], select, button {
-        min-width: 100%;
-        max-width: 300px;
-      }
-      .user {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-      .user img {
-        margin-bottom: 0.5rem;
-      }
+    .user:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 15px rgba(244, 143, 177, 0.6);
     }
   </style>
 </head>
@@ -123,18 +104,15 @@ TEMPLATE = """
   {% if usuarios %}
     {% for user in usuarios %}
       <div class="user">
-        <img src="{{ user.picture }}" alt="Foto de {{ user.name }}" />
-        <div class="user-info">
-          <strong>{{ user.name }}</strong><br/>
-          Email: {{ user.email }}<br/>
-          Telefone: {{ user.phone }}<br/>
-          País: {{ user.country }}<br/>
-          CPF: {{ user.cpf }}
-        </div>
+        <strong>{{ user.name }}</strong><br/>
+        Email: {{ user.email }}<br/>
+        Telefone: {{ user.phone }}<br/>
+        País: {{ user.country }}<br/>
+        CPF: {{ user.cpf }}
       </div>
     {% endfor %}
   {% else %}
-    <p class="no-users">Nenhum usuário gerado ainda.</p>
+    <p style="text-align: center; color: #666;">Nenhum usuário gerado ainda.</p>
   {% endif %}
 </body>
 </html>
@@ -153,7 +131,6 @@ def gerar_usuarios(count=5, gender=None, nat=None):
                     'email': u['email'],
                     'phone': u['phone'],
                     'country': u.get('country', 'Brasil'),
-                    'picture': 'https://via.placeholder.com/150',
                     'cpf': fake.cpf()
                 })
             return usuarios
