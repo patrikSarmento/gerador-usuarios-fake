@@ -9,6 +9,7 @@ import logging
 
 app = Flask(__name__)
 fake = Faker('pt_BR')
+logging.basicConfig(level=logging.WARNING)
 
 PAISES_PT = {
     "Brazil": "Brasil",
@@ -147,19 +148,16 @@ TEMPLATE = """
 def traduzir_pais(pais_en):
     return PAISES_PT.get(pais_en, pais_en)
 
-def gerar_cpf_fake():
-    # Gera um CPF fake no formato 000.000.000-00
-    return f"{fake.random_number(digits=3):03}.{fake.random_number(digits=3):03}.{fake.random_number(digits=3):03}-{fake.random_number(digits=2):02}"
-
 def gerar_usuarios(count=5, gender=None, nat=None):
     url = f'https://randomuser.me/api/?results={count}'
-    if gender:
+
+    if gender in ('male', 'female'):
         url += f'&gender={gender}'
-    if nat:
-        url += f'&nat={nat}'
+    if nat and nat.strip():
+        url += f'&nat={nat.upper()}'
 
     try:
-        resp = requests.get(url, timeout=5)
+        resp = requests.get(url, timeout=10)
         if resp.status_code == 200:
             dados = resp.json().get('results', [])
             usuarios = []
@@ -171,12 +169,14 @@ def gerar_usuarios(count=5, gender=None, nat=None):
                     'phone': u['phone'],
                     'country': pais_traduzido,
                     'picture': u['picture']['large'],
-                    'cpf': gerar_cpf_fake()
+                    'cpf': fake.cpf()
                 })
+            logging.warning(f"Gerados {len(usuarios)} usuários | gender={gender} | nat={nat}")
             return usuarios
+        else:
+            logging.warning(f"Erro na API randomuser: status {resp.status_code}")
     except Exception as e:
-        logging.error(f"Erro ao gerar usuários: {e}")
-        return []
+        logging.warning(f"Exceção ao buscar usuários: {e}")
     return []
 
 @app.route('/')
@@ -191,7 +191,6 @@ def index():
         count = 5
 
     users = gerar_usuarios(count, gender, nat)
-    logging.warning(f"Gerados {len(users)} usuários | gender={gender} | nat={nat}")
     return render_template_string(TEMPLATE, users=users, count=count, gender=gender, nat=nat)
 
 @app.route('/export')
@@ -215,8 +214,6 @@ def export():
         json_data = json.dumps(users, indent=2, ensure_ascii=False)
         return send_file(io.BytesIO(json_data.encode()), mimetype='application/json', as_attachment=True, download_name='usuarios.json')
 
-
-# ✅ Compatível com Render
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
