@@ -9,6 +9,7 @@ import logging
 
 app = Flask(__name__)
 fake = Faker('pt_BR')
+
 logging.basicConfig(level=logging.WARNING)
 
 PAISES_PT = {
@@ -127,7 +128,7 @@ TEMPLATE = """
         {% for user in users %}
           <div class="col-md-6">
             <div class="user-card d-flex align-items-center gap-4 flex-wrap">
-              <img src="{{ user['picture'] }}" width="100" height="100" class="avatar">
+              <img src="{{ user['picture'] }}" width="100" height="100" class="avatar" alt="Avatar do usuário">
               <div class="user-info">
                 <h5>{{ user['name'] }}</h5>
                 <p><i class="fa-solid fa-envelope icon"></i>{{ user['email'] }}</p>
@@ -156,8 +157,12 @@ def gerar_usuarios(count=5, gender=None, nat=None):
     if nat and nat.strip():
         url += f'&nat={nat.upper()}'
 
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+    }
+
     try:
-        resp = requests.get(url, timeout=10)
+        resp = requests.get(url, headers=headers, timeout=10)
         if resp.status_code == 200:
             dados = resp.json().get('results', [])
             usuarios = []
@@ -213,6 +218,7 @@ def export():
     else:
         json_data = json.dumps(users, indent=2, ensure_ascii=False)
         return send_file(io.BytesIO(json_data.encode()), mimetype='application/json', as_attachment=True, download_name='usuarios.json')
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
