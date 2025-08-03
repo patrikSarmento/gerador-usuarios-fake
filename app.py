@@ -19,7 +19,7 @@ TEMPLATE = """
     input[type=number], select { padding: 0.5rem; margin-right: 0.5rem; }
     button { padding: 0.5rem 1rem; }
     .user { background: white; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; }
-    .user img { border-radius: 50%; margin-right: 1rem; width: 80px; height: 80px; }
+    .user img { border-radius: 50%; margin-right: 1rem; width: 80px; height: 80px; object-fit: cover; }
     .user-info { line-height: 1.4; }
   </style>
 </head>
@@ -65,15 +65,13 @@ def gerar_usuarios(count=5, gender=None, nat=None):
             dados = resp.json().get('data', [])
             usuarios = []
             for u in dados:
-                # Filtrar por gênero se quiser (essa API não suporta filtro gender, então só ignoramos)
-                # nat não é suportado aqui, ignoramos também
-                
+                # A API fakerapi.it não oferece filtro de gênero nem nacionalidade, ignoramos esses filtros
                 usuarios.append({
-                    'name': u['firstname'] + ' ' + u['lastname'],
+                    'name': f"{u['firstname']} {u['lastname']}",
                     'email': u['email'],
                     'phone': u['phone'],
                     'country': u.get('country', 'Brasil'),
-                    'picture': 'https://via.placeholder.com/150',  # API não fornece foto, usa placeholder
+                    'picture': 'https://via.placeholder.com/150',  # Sem foto real, usamos placeholder
                     'cpf': fake.cpf()
                 })
             return usuarios
